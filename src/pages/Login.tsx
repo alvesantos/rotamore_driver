@@ -102,7 +102,7 @@ function BrandPanel() {
         className="relative z-10 size-40 rounded-[34px] object-cover shadow-2xl xl:size-40"
       />
       <div className="relative z-10 my-auto max-w-xl pb-24 pt-14">
-        <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[.16em] text-cyan-200 before:h-0.5 before:w-6 before:bg-amber-400">
+        <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[.16em] text-cyan-200">
           Sua jornada começa aqui
         </span>
         <h1 className="my-6 text-[clamp(38px,4vw,60px)] font-extrabold leading-[1.08] tracking-tighter">
@@ -138,9 +138,6 @@ const AuthLayout = ({ children }: { children: ReactNode }) => (
 );
 const Heading = ({ signup = false }: { signup?: boolean }) => (
   <div className="mb-7 text-center">
-    <span className="mb-3 inline-flex size-11 -rotate-6 items-center justify-center rounded-2xl bg-amber-100 text-xl text-amber-500">
-      ✦
-    </span>
     <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-[#0a2145]">
       {signup ? "Crie sua conta" : "Bem-vindo de volta!"}
     </h2>
