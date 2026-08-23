@@ -1,0 +1,6 @@
+import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
+import { AuthLayout, Field, Heading, MobileLogo, PrimaryButton } from './Login'
+
+function Signup() { return <AuthLayout><div className="w-full max-w-[500px]"><MobileLogo /><Link to="/" className="text-xs font-bold text-slate-500">← Voltar para o login</Link><div className="mt-4"><Heading signup /></div><form onSubmit={(e: FormEvent) => e.preventDefault()} className="space-y-4"><div className="grid gap-4 sm:grid-cols-2"><Field id="firstName" label="Nome" placeholder="Seu nome" required /><Field id="lastName" label="Sobrenome" placeholder="Seu sobrenome" required /></div><Field id="email" label="E-mail" icon="mail" type="email" placeholder="voce@email.com" required /><Field id="phone" label="Celular" icon="phone" type="tel" placeholder="(00) 00000-0000" required /><PrimaryButton>Criar minha conta</PrimaryButton></form><p className="mt-5 text-center text-[13px] text-slate-500">Já possui uma conta? <Link to="/" className="font-bold text-blue-600">Entrar agora</Link></p><p className="mx-auto mt-5 max-w-sm text-center text-[10px] text-slate-400">Ao se cadastrar, você concorda com nossos Termos de Uso e Política de Privacidade.</p></div></AuthLayout> }
+export default Signup

@@ -1,9 +1,9 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+
 function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <h1 className="text-3xl font-bold text-blue-600">Rota+ funcionando 🚗</h1>
-    </div>
-  )
+  return <BrowserRouter><Routes><Route path="/" element={<Login />} /><Route path="/cadastro" element={<Signup />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter>
 }
 
 export default App

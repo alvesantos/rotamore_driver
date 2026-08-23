@@ -1,0 +1,257 @@
+import { useState } from "react";
+import type { FormEvent, InputHTMLAttributes, ReactNode } from "react";
+import { Link } from "react-router-dom";
+import logo from "../assets/rotamore.png";
+
+type Method = "phone" | "email";
+type IconName = "phone" | "mail" | "lock" | "eye" | "arrow";
+const inputClass =
+  "h-[52px] w-full rounded-xl border border-slate-200 bg-white text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+
+const Icon = ({
+  name,
+  className = "size-5",
+}: {
+  name: IconName;
+  className?: string;
+}) => {
+  const paths: Record<IconName, ReactNode> = {
+    phone: (
+      <path d="M22 16.9v3a2 2 0 0 1-2.2 2 20 20 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 20 20 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.8.7a2 2 0 0 1 1.7 2z" />
+    ),
+    mail: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </>
+    ),
+    lock: (
+      <>
+        <rect x="4" y="10" width="16" height="11" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+      </>
+    ),
+    eye: (
+      <>
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </>
+    ),
+    arrow: (
+      <>
+        <path d="M5 12h14" />
+        <path d="m13 6 6 6-6 6" />
+      </>
+    ),
+  };
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths[name]}
+    </svg>
+  );
+};
+
+const Field = ({
+  id,
+  label,
+  icon,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & {
+  id: string;
+  label: string;
+  icon?: IconName;
+}) => (
+  <div>
+    <label
+      className="mb-2 block text-[13px] font-bold text-slate-700"
+      htmlFor={id}
+    >
+      {label}
+    </label>
+    <div className="relative">
+      {icon && (
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <Icon name={icon} className="size-4.5" />
+        </span>
+      )}
+      <input
+        id={id}
+        className={`${inputClass} ${icon ? "px-12" : "px-4"}`}
+        {...props}
+      />
+    </div>
+  </div>
+);
+
+function BrandPanel() {
+  return (
+    <aside className="relative hidden min-h-screen overflow-hidden bg-[radial-gradient(circle_at_8%_92%,rgba(0,198,238,.25),transparent_30%),radial-gradient(circle_at_85%_15%,rgba(19,110,221,.38),transparent_36%),linear-gradient(145deg,#071b45_0%,#06347d_55%,#05183b_100%)] px-[clamp(40px,5vw,78px)] py-9 text-white lg:flex lg:flex-col">
+      <div className="absolute -right-64 top-[12%] size-125 rounded-full border border-cyan-300/10 shadow-[0_0_0_80px_rgba(33,141,241,.035),0_0_0_160px_rgba(33,141,241,.025)]" />
+      <img
+        src={logo}
+        alt="Rota Mais"
+        className="relative z-10 size-40 rounded-[34px] object-cover shadow-2xl xl:size-40"
+      />
+      <div className="relative z-10 my-auto max-w-xl pb-24 pt-14">
+        <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[.16em] text-cyan-200 before:h-0.5 before:w-6 before:bg-amber-400">
+          Sua jornada começa aqui
+        </span>
+        <h1 className="my-6 text-[clamp(38px,4vw,60px)] font-extrabold leading-[1.08] tracking-tighter">
+          Seu próximo destino
+          <br />
+          está a um <em className="not-italic text-amber-400">clique.</em>
+        </h1>
+        <p className="max-w-md text-[clamp(15px,1.3vw,18px)] leading-7 text-blue-100/80">
+          Conectando você aos melhores caminhos, com segurança e praticidade.
+        </p>
+      </div>
+      <div className="absolute bottom-20 left-[-8%] h-40 w-[90%] rotate-[-8deg] rounded-[50%] border-t-[3px] border-cyan-300/30" />
+      <p className="relative z-10 mt-auto text-xs text-blue-200/50">
+        © 2026 Rota+ • Viaje mais. Viva mais.
+      </p>
+    </aside>
+  );
+}
+const MobileLogo = () => (
+  <img
+    src={logo}
+    alt="Rota Mais"
+    className="mx-auto mb-7 size-36 rounded-[30px] object-cover shadow-xl lg:hidden"
+  />
+);
+const AuthLayout = ({ children }: { children: ReactNode }) => (
+  <main className="grid min-h-screen bg-slate-50 lg:grid-cols-[minmax(380px,46%)_1fr]">
+    <BrandPanel />
+    <section className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_90%_5%,rgba(24,140,241,.06),transparent_28%)] px-5 py-10 sm:px-10">
+      {children}
+    </section>
+  </main>
+);
+const Heading = ({ signup = false }: { signup?: boolean }) => (
+  <div className="mb-7 text-center">
+    <span className="mb-3 inline-flex size-11 -rotate-6 items-center justify-center rounded-2xl bg-amber-100 text-xl text-amber-500">
+      ✦
+    </span>
+    <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-[#0a2145]">
+      {signup ? "Crie sua conta" : "Bem-vindo de volta!"}
+    </h2>
+    <p className="text-sm text-slate-500">
+      {signup
+        ? "Preencha seus dados e comece uma nova jornada com a gente."
+        : "Entre na sua conta para continuar sua jornada."}
+    </p>
+  </div>
+);
+const PrimaryButton = ({ children }: { children: ReactNode }) => (
+  <button
+    type="submit"
+    className="flex h-13.25 w-full items-center justify-center gap-3 rounded-xl bg-linear-to-r from-[#06448f] to-[#0879d5] font-bold text-white shadow-[0_9px_22px_rgba(5,83,165,.22)] transition hover:-translate-y-0.5 hover:shadow-xl"
+  >
+    {children}
+    <Icon name="arrow" />
+  </button>
+);
+
+function Login() {
+  const [method, setMethod] = useState<Method>("phone");
+  const [show, setShow] = useState(false);
+  const methodIcon: IconName = method === "phone" ? "phone" : "mail";
+
+  return (
+    <AuthLayout>
+      <div className="w-full max-w-117.5">
+        <MobileLogo />
+        <Heading />
+        <div className="mb-7 grid grid-cols-2 gap-1.5 rounded-xl border border-slate-200 bg-slate-100 p-1.5">
+          {(["phone", "email"] as const).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setMethod(item)}
+              className={`flex h-11 items-center justify-center gap-2 rounded-lg text-sm font-semibold transition ${method === item ? "bg-white text-blue-900 shadow-sm" : "text-slate-500"}`}
+            >
+              <Icon
+                name={item === "phone" ? "phone" : "mail"}
+                className="size-4.5"
+              />
+              {item === "phone" ? "Celular" : "E-mail"}
+            </button>
+          ))}
+        </div>
+        <form
+          onSubmit={(e: FormEvent) => e.preventDefault()}
+          className="space-y-5"
+        >
+          <Field
+            key={method}
+            id="login"
+            label={method === "phone" ? "Número de celular" : "Seu e-mail"}
+            icon={methodIcon}
+            type={method === "phone" ? "tel" : "email"}
+            placeholder={
+              method === "phone" ? "(00) 00000-0000" : "voce@email.com"
+            }
+            required
+          />
+          <div>
+            <div className="mb-2 flex justify-between">
+              <label
+                htmlFor="password"
+                className="text-[13px] font-bold text-slate-700"
+              >
+                Sua senha
+              </label>
+              <a href="#recuperar" className="text-xs font-bold text-blue-600">
+                Esqueci minha senha
+              </a>
+            </div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <Icon name="lock" className="size-4.5" />
+              </span>
+              <input
+                id="password"
+                type={show ? "text" : "password"}
+                placeholder="Digite sua senha"
+                required
+                className={`${inputClass} px-12`}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400"
+              >
+                <Icon name="eye" className="size-4.5" />
+              </button>
+            </div>
+          </div>
+          <PrimaryButton>Entrar</PrimaryButton>
+        </form>
+        <div className="my-6 flex items-center gap-4 text-xs text-slate-400 before:h-px before:flex-1 before:bg-slate-200 after:h-px after:flex-1 after:bg-slate-200">
+          ou
+        </div>
+        <p className="text-center text-[13px] text-slate-500">
+          Ainda não tem uma conta?{" "}
+          <Link to="/cadastro" className="font-bold text-blue-600">
+            Cadastre-se grátis
+          </Link>
+        </p>
+        <p className="mx-auto mt-7 max-w-sm text-center text-[10px] text-slate-400">
+          Ao continuar, você concorda com nossos Termos de Uso e Política de
+          Privacidade.
+        </p>
+      </div>
+    </AuthLayout>
+  );
+}
+export { AuthLayout, Field, Heading, Icon, MobileLogo, PrimaryButton };
+export default Login;
