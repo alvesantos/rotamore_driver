@@ -103,32 +103,37 @@ function BrandPanel() {
         className="relative z-10 size-40 rounded-[34px] object-cover shadow-2xl xl:size-40"
       />
       <div className="relative z-10 my-auto max-w-xl pb-24 pt-14">
-        <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[.16em] text-cyan-200">
-          Sua jornada começa aqui
+        <span className="inline-flex items-center gap-2 rounded-full bg-cyan-400/15 px-3 py-1 text-xs font-bold uppercase tracking-[.16em] text-cyan-200 border border-cyan-400/20">
+          🚗 Portal do Motorista
         </span>
         <h1 className="my-6 text-[clamp(38px,4vw,60px)] font-extrabold leading-[1.08] tracking-tighter">
-          Seu próximo destino
+          Dirija com liberdade
           <br />
-          está a um <em className="not-italic text-amber-400">clique.</em>
+          e lucre a cada <em className="not-italic text-amber-400">corrida.</em>
         </h1>
         <p className="max-w-md text-[clamp(15px,1.3vw,18px)] leading-7 text-blue-100/80">
-          Conectando você aos melhores caminhos, com segurança e praticidade.
+          Conectando motoristas parceiros aos melhores trajetos com segurança, transparência e suporte.
         </p>
       </div>
       <div className="absolute bottom-20 left-[-8%] h-40 w-[90%] rotate-[-8deg] rounded-[50%] border-t-[3px] border-cyan-300/30" />
       <p className="relative z-10 mt-auto text-xs text-blue-200/50">
-        © 2026 Rota+ • Viaje mais. Viva mais.
+        © 2026 Rota+ • Portal do Motorista
       </p>
     </aside>
   );
 }
 
 const MobileLogo = () => (
-  <img
-    src={logo}
-    alt="Rota Mais"
-    className="mx-auto mb-7 size-36 rounded-[30px] object-cover shadow-xl lg:hidden"
-  />
+  <div className="text-center lg:hidden mb-6">
+    <img
+      src={logo}
+      alt="Rota Mais"
+      className="mx-auto mb-3 size-28 rounded-[24px] object-cover shadow-xl"
+    />
+    <span className="inline-block rounded-full bg-blue-100 px-3 py-0.5 text-xs font-bold text-blue-900 border border-blue-200">
+      🚗 Portal do Motorista
+    </span>
+  </div>
 );
 
 const AuthLayout = ({ children }: { children: ReactNode }) => (
@@ -143,12 +148,12 @@ const AuthLayout = ({ children }: { children: ReactNode }) => (
 const Heading = ({ signup = false }: { signup?: boolean }) => (
   <div className="mb-7 text-center">
     <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-[#0a2145]">
-      {signup ? "Crie sua conta" : "Bem-vindo de volta!"}
+      {signup ? "Cadastro de Motorista" : "Área do Motorista"}
     </h2>
     <p className="text-sm text-slate-500">
       {signup
-        ? "Preencha seus dados e comece uma nova jornada com a gente."
-        : "Entre na sua conta para continuar sua jornada."}
+        ? "Preencha seus dados para se tornar um motorista parceiro Rota+."
+        : "Entre na sua conta de motorista parceiro para iniciar suas viagens."}
     </p>
   </div>
 );
@@ -183,7 +188,7 @@ const PrimaryButton = ({
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           />
         </svg>
-        Entrando...
+        Autenticando...
       </span>
     ) : (
       <>
@@ -226,10 +231,10 @@ function Login() {
     }
   };
 
-  const handleQuickFill = (email: string, pass: string) => {
+  const handleQuickFillDriver = () => {
     setMethod("email");
-    setIdentifier(email);
-    setPassword(pass);
+    setIdentifier("ricberns@gmail.com");
+    setPassword("1254101254@Abc");
     setError(null);
   };
 
@@ -241,29 +246,19 @@ function Login() {
         <MobileLogo />
         <Heading />
 
-        {/* Quick Test Seed Account Buttons */}
-        <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5">
-          <p className="text-xs font-bold text-blue-900 mb-2 flex items-center justify-between">
-            <span>⚡ Contas de Teste (Clique para preencher):</span>
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickFill("rogab@admin.com", "r0g4b@2026!")}
-              className="flex flex-col items-start rounded-lg border border-blue-200 bg-white p-2 text-left shadow-2xs transition hover:border-blue-400 hover:bg-blue-50/50"
-            >
-              <span className="text-xs font-bold text-blue-900">👑 Admin</span>
-              <span className="text-[11px] text-slate-500 font-mono truncate w-full">rogab@admin.com</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("ricberns@gmail.com", "1254101254@Abc")}
-              className="flex flex-col items-start rounded-lg border border-emerald-200 bg-white p-2 text-left shadow-2xs transition hover:border-emerald-400 hover:bg-emerald-50/50"
-            >
-              <span className="text-xs font-bold text-emerald-900">🚗 Motorista</span>
-              <span className="text-[11px] text-slate-500 font-mono truncate w-full">ricberns@gmail.com</span>
-            </button>
+        {/* Quick Fill Motorista */}
+        <div className="mb-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-emerald-950">🚗 Motorista Seed:</span>
+            <span className="text-[11px] font-mono text-emerald-800">ricberns@gmail.com</span>
           </div>
+          <button
+            type="button"
+            onClick={handleQuickFillDriver}
+            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+          >
+            Preencher
+          </button>
         </div>
 
         {/* Method Switcher: Celular ou E-mail */}
@@ -293,15 +288,15 @@ function Login() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-5 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700">
-            <svg className="size-5 shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700">
+            <svg className="size-5 shrink-0 text-red-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"
                 d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
                 clipRule="evenodd"
               />
             </svg>
-            <span>{error}</span>
+            <span className="leading-snug">{error}</span>
           </div>
         )}
 
@@ -309,11 +304,11 @@ function Login() {
           <Field
             key={method}
             id="login"
-            label={method === "phone" ? "Número de celular" : "Seu e-mail"}
+            label={method === "phone" ? "Número de celular" : "Seu e-mail cadastrado"}
             icon={methodIcon}
             type={method === "phone" ? "tel" : "email"}
             placeholder={
-              method === "phone" ? "(00) 00000-0000" : "voce@email.com"
+              method === "phone" ? "(00) 00000-0000" : "motorista@email.com"
             }
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
@@ -355,7 +350,7 @@ function Login() {
             </div>
           </div>
 
-          <PrimaryButton isLoading={isSubmitting}>Entrar</PrimaryButton>
+          <PrimaryButton isLoading={isSubmitting}>Entrar como Motorista</PrimaryButton>
         </form>
 
         <div className="my-6 flex items-center gap-4 text-xs text-slate-400 before:h-px before:flex-1 before:bg-slate-200 after:h-px after:flex-1 after:bg-slate-200">
@@ -363,15 +358,14 @@ function Login() {
         </div>
 
         <p className="text-center text-[13px] text-slate-500">
-          Ainda não tem uma conta?{" "}
+          Quer ser um motorista parceiro?{" "}
           <Link to="/cadastro" className="font-bold text-blue-600 hover:underline">
-            Cadastre-se grátis
+            Cadastre-se agora
           </Link>
         </p>
 
         <p className="mx-auto mt-7 max-w-sm text-center text-[10px] text-slate-400">
-          Ao continuar, você concorda com nossos Termos de Uso e Política de
-          Privacidade.
+          Área restrita a motoristas credenciados Rota+.
         </p>
       </div>
     </AuthLayout>

@@ -4,9 +4,6 @@ import logo from "../assets/rotamore.png";
 export default function Dashboard() {
   const { user, logout } = useAuth();
 
-  const isDriver = user?.type === "driver";
-  const isAdmin = user?.type === "admin";
-
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
       {/* Top Navbar */}
@@ -21,11 +18,11 @@ export default function Dashboard() {
             <div>
               <span className="text-lg font-black tracking-tight text-white flex items-center gap-1.5">
                 Rota<span className="text-cyan-400">+</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/20">
-                  {isAdmin ? "Admin" : isDriver ? "Driver" : "App"}
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">
+                  Motorista
                 </span>
               </span>
-              <p className="text-[11px] text-slate-400">Plataforma de Mobilidade</p>
+              <p className="text-[11px] text-slate-400">Portal do Motorista</p>
             </div>
           </div>
 
@@ -38,15 +35,9 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
-                  isAdmin
-                    ? "bg-purple-500/10 text-purple-300 border-purple-500/30"
-                    : "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
-                }`}
-              >
-                <span className={`size-1.5 rounded-full ${isAdmin ? "bg-purple-400" : "bg-emerald-400"} animate-pulse`} />
-                {isAdmin ? "Administrador" : isDriver ? "Motorista" : "Cliente"}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/10 text-emerald-300 border-emerald-500/30">
+                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Motorista Parceiro
               </span>
 
               <button
@@ -84,17 +75,14 @@ export default function Dashboard() {
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300 border border-cyan-400/20 mb-4">
               <span className="animate-ping size-1.5 rounded-full bg-cyan-400" />
-              Sessão autenticada com sucesso
+              Sessão autenticada via Backend & PostgreSQL
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-              Olá, <span className="text-cyan-400">{user?.name}</span>! 👋
+              Olá, motorista <span className="text-cyan-400">{user?.name}</span>! 🚗
             </h1>
             <p className="mt-2 text-base sm:text-lg text-slate-300">
-              Você está autenticado como{" "}
-              <strong className="text-white">
-                {isAdmin ? "Administrador do Sistema" : "Motorista Parceiro"}
-              </strong>.
+              Bem-vindo ao seu aplicativo de viagens Rota+.
             </p>
           </div>
         </div>
@@ -122,15 +110,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* User Details & Feature Grid */}
+        {/* User Details & Driver Modules */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Card: Perfil */}
           <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-6 backdrop-blur-sm">
             <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
               <h3 className="font-bold text-white flex items-center gap-2 text-sm">
-                <span>👤</span> Dados da Conta
+                <span>👤</span> Dados do Motorista
               </h3>
-              <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
                 Ativo
               </span>
             </div>
@@ -149,7 +137,7 @@ export default function Dashboard() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-slate-400">Tipo de Perfil:</dt>
-                <dd className="font-semibold text-cyan-300 capitalize">{user?.type}</dd>
+                <dd className="font-semibold text-emerald-300 capitalize">Motorista ({user?.type})</dd>
               </div>
             </dl>
           </div>
@@ -158,14 +146,14 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-6 backdrop-blur-sm opacity-80">
             <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
               <h3 className="font-bold text-white flex items-center gap-2 text-sm">
-                <span>🚗</span> {isAdmin ? "Gestão de Corridas" : "Minhas Corridas"}
+                <span>🚗</span> Minhas Corridas
               </h3>
               <span className="text-[11px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                 Em Breve
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Módulo de acompanhamento de rotas em tempo real, pedidos solicitados e histórico de viagens.
+              Módulo de recebimento de chamadas de passageiros em tempo real, aceite de corridas e navegação GPS.
             </p>
           </div>
 
@@ -173,14 +161,14 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-slate-800 bg-slate-800/40 p-6 backdrop-blur-sm opacity-80">
             <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
               <h3 className="font-bold text-white flex items-center gap-2 text-sm">
-                <span>💳</span> Relatórios & Ganhos
+                <span>💳</span> Meus Ganhos & Repasses
               </h3>
               <span className="text-[11px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                 Em Breve
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Extratos de faturamento, taxas da plataforma, repasses para motoristas e métricas financeiras.
+              Relatório de ganhos diários, semanais e mensais, histórico de corridas finalizadas e dados bancários para repasse via PIX.
             </p>
           </div>
         </div>
@@ -188,7 +176,7 @@ export default function Dashboard() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-900/50 py-4 text-center text-xs text-slate-500">
-        © 2026 Rota+ • Todos os direitos reservados.
+        © 2026 Rota+ • Portal do Motorista Parceiro.
       </footer>
     </div>
   );
