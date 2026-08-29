@@ -231,13 +231,6 @@ function Login() {
     }
   };
 
-  const handleQuickFillDriver = () => {
-    setMethod("email");
-    setIdentifier("ricberns@gmail.com");
-    setPassword("1254101254@Abc");
-    setError(null);
-  };
-
   const methodIcon: IconName = method === "phone" ? "phone" : "mail";
 
   return (
@@ -245,21 +238,6 @@ function Login() {
       <div className="w-full max-w-117.5">
         <MobileLogo />
         <Heading />
-
-        {/* Quick Fill Motorista */}
-        <div className="mb-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-emerald-950">🚗 Motorista Seed:</span>
-            <span className="text-[11px] font-mono text-emerald-800">ricberns@gmail.com</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleQuickFillDriver}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-          >
-            Preencher
-          </button>
-        </div>
 
         {/* Method Switcher: Celular ou E-mail */}
         <div className="mb-6 grid grid-cols-2 gap-1.5 rounded-xl border border-slate-200 bg-slate-100 p-1.5">
