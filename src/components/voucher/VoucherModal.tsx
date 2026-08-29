@@ -42,7 +42,249 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
   const driverPhone = user?.phone || "";
 
   const handlePrint = () => {
-    window.print();
+    const formattedDate = formatDateBR(ride.ride_date);
+    const vehicleText = ride.vehicle_name
+      ? `${ride.vehicle_brand || ""} ${ride.vehicle_name} (${ride.vehicle_plate || ""})`.trim()
+      : "Veículo Executivo";
+
+    const printFrame = document.createElement("iframe");
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    document.body.appendChild(printFrame);
+
+    const doc = printFrame.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Voucher - ${voucherCode}</title>
+          <style>
+            @page {
+              margin: 15mm;
+              size: auto;
+            }
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+              color: #0f172a;
+              background: #ffffff;
+              padding: 20px;
+              display: flex;
+              justify-content: center;
+            }
+            .ticket {
+              width: 100%;
+              max-width: 520px;
+              border: 2px solid #0284c7;
+              border-radius: 16px;
+              overflow: hidden;
+              background: #ffffff;
+              box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            }
+            .header {
+              background: linear-gradient(135deg, #1e40af, #0284c7);
+              color: #ffffff;
+              padding: 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .logo-title {
+              font-size: 20px;
+              font-weight: 900;
+              letter-spacing: -0.5px;
+            }
+            .code {
+              font-family: monospace;
+              font-size: 11px;
+              opacity: 0.9;
+            }
+            .status {
+              background: #10b981;
+              color: white;
+              padding: 4px 10px;
+              border-radius: 9999px;
+              font-size: 10px;
+              font-weight: bold;
+              text-transform: uppercase;
+            }
+            .body {
+              padding: 24px;
+            }
+            .box {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 14px;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+            }
+            .label {
+              font-size: 10px;
+              color: #64748b;
+              text-transform: uppercase;
+              font-weight: 700;
+              margin-bottom: 2px;
+            }
+            .val {
+              font-size: 14px;
+              font-weight: 700;
+              color: #0f172a;
+            }
+            .subval {
+              font-size: 12px;
+              color: #475569;
+            }
+            .route-section {
+              border-left: 3px solid #0284c7;
+              padding-left: 14px;
+              margin-bottom: 18px;
+            }
+            .route-item {
+              margin-bottom: 12px;
+            }
+            .route-item:last-child {
+              margin-bottom: 0;
+            }
+            .route-title {
+              font-size: 10px;
+              font-weight: 800;
+              color: #0284c7;
+            }
+            .route-desc {
+              font-size: 13px;
+              font-weight: 600;
+              color: #1e293b;
+            }
+            .notes-box {
+              background: #fffbeb;
+              border: 1px solid #fef3c7;
+              border-radius: 8px;
+              padding: 10px;
+              margin-bottom: 18px;
+              font-size: 11px;
+              color: #92400e;
+            }
+            .footer-info {
+              border-top: 1px dashed #cbd5e1;
+              padding-top: 14px;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              font-size: 11px;
+            }
+            .price-card {
+              background: #0f172a;
+              color: white;
+              border-radius: 12px;
+              padding: 16px 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .price-val {
+              font-size: 22px;
+              font-weight: 900;
+              color: #34d399;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="ticket">
+            <div class="header">
+              <div>
+                <div class="logo-title">ROTA+ EXECUTIVO</div>
+                <div class="code">VOUCHER: ${voucherCode}</div>
+              </div>
+              <div class="status">${ride.status || "CONFIRMADO"}</div>
+            </div>
+
+            <div class="body">
+              <div class="box">
+                <div>
+                  <div class="label">Passageiro(a)</div>
+                  <div class="val">${ride.customer_name}</div>
+                  <div class="subval">${formatPhone(ride.customer_phone)}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div class="label">Data & Horário</div>
+                  <div class="val">${formattedDate}</div>
+                  <div class="subval">⏰ ${ride.ride_time} • ${ride.passengers_count} pessoa(s)</div>
+                </div>
+              </div>
+
+              <div class="route-section">
+                <div class="route-item">
+                  <div class="route-title">📍 EMBARQUE (ORIGEM)</div>
+                  <div class="route-desc">${ride.pickup}</div>
+                </div>
+                <div class="route-item">
+                  <div class="route-title">🏁 DESTINO (DESEMBARQUE)</div>
+                  <div class="route-desc">${ride.destination}</div>
+                </div>
+              </div>
+
+              ${
+                ride.notes
+                  ? `<div class="notes-box"><strong>📝 Observações / Voo:</strong> ${ride.notes}</div>`
+                  : ""
+              }
+
+              <div class="footer-info">
+                <div>
+                  <div class="label">Motorista</div>
+                  <div style="font-weight: bold;">${driverName}</div>
+                  <div style="color: #64748b;">${formatPhone(driverPhone)}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div class="label">Veículo</div>
+                  <div style="font-weight: bold;">${vehicleText}</div>
+                  ${
+                    ride.vehicle_color
+                      ? `<div style="color: #64748b;">Cor: ${ride.vehicle_color}</div>`
+                      : ""
+                  }
+                </div>
+              </div>
+
+              <div class="price-card">
+                <div>
+                  <div style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Valor Total do Serviço</div>
+                  <div style="font-size: 11px; color: #38bdf8;">Transporte Privativo</div>
+                </div>
+                <div class="price-val">${formatCurrency(ride.price)}</div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      printFrame.contentWindow?.focus();
+      printFrame.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 3000);
+    }, 350);
   };
 
   const generateWhatsAppMessage = () => {
@@ -85,37 +327,10 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white print:static">
-      {/* Print Dedicated CSS */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #printable-voucher, #printable-voucher * {
-            visibility: visible;
-          }
-          #printable-voucher {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 20px;
-            background: white !important;
-            color: black !important;
-            border: 2px solid #000 !important;
-            box-shadow: none !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
       <div className="relative w-full max-w-sm my-auto animate-fadeIn">
-        {/* Close Button on Modal (no-print) */}
-        <div className="no-print flex justify-end mb-2">
+        {/* Close Button */}
+        <div className="flex justify-end mb-2">
           <button
             type="button"
             onClick={onClose}
@@ -125,28 +340,25 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
           </button>
         </div>
 
-        {/* Printable Ticket Container */}
-        <div
-          id="printable-voucher"
-          className="rounded-3xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden print:border-black print:text-black print:bg-white"
-        >
+        {/* Ticket Card Container */}
+        <div className="rounded-3xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden">
           {/* Ticket Header */}
-          <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 p-5 text-white border-b border-slate-700/60 print:bg-white print:text-black print:border-b-2 print:border-black">
+          <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 p-5 text-white border-b border-slate-700/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <img
                   src={logoImg}
                   alt="Rota+"
-                  className="h-7 w-auto object-contain bg-white/10 rounded-md p-0.5 print:invert"
+                  className="h-7 w-auto object-contain bg-white/10 rounded-md p-0.5"
                 />
                 <div>
                   <h3 className="font-extrabold text-sm tracking-wide">VOUCHER DE VIAGEM</h3>
-                  <span className="text-[10px] text-blue-200 uppercase font-mono tracking-wider print:text-gray-600">
+                  <span className="text-[10px] text-blue-200 uppercase font-mono tracking-wider">
                     {voucherCode}
                   </span>
                 </div>
               </div>
-              <span className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-bold uppercase print:border-black print:text-black">
+              <span className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-bold uppercase">
                 {ride.status || "Confirmada"}
               </span>
             </div>
@@ -155,41 +367,41 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
           {/* Ticket Body */}
           <div className="p-5 space-y-4 text-xs">
             {/* Passenger & Date/Time Bar */}
-            <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/50 print:bg-gray-100 print:border-gray-300">
+            <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/50">
               <div>
-                <span className="text-[10px] text-slate-400 block print:text-gray-600">Passageiro(a)</span>
+                <span className="text-[10px] text-slate-400 block">Passageiro(a)</span>
                 <span className="font-bold text-sm block truncate">{ride.customer_name}</span>
-                <span className="text-[11px] text-slate-300 font-mono print:text-gray-800">
+                <span className="text-[11px] text-slate-300 font-mono">
                   {formatPhone(ride.customer_phone)}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 block print:text-gray-600">Data e Horário</span>
-                <span className="font-bold text-sm text-cyan-400 print:text-black block">
+                <span className="text-[10px] text-slate-400 block">Data e Horário</span>
+                <span className="font-bold text-sm text-cyan-400 block">
                   {formatDateBR(ride.ride_date)}
                 </span>
-                <span className="text-[11px] font-bold text-slate-200 print:text-gray-800">
+                <span className="text-[11px] font-bold text-slate-200">
                   ⏰ {ride.ride_time} ({ride.passengers_count} {ride.passengers_count === 1 ? "pessoa" : "pessoas"})
                 </span>
               </div>
             </div>
 
             {/* Route Details */}
-            <div className="space-y-2.5 border-l-2 border-cyan-500/40 pl-3 py-1 print:border-black">
+            <div className="space-y-2.5 border-l-2 border-cyan-500/40 pl-3 py-1">
               <div>
-                <span className="text-[10px] text-emerald-400 font-bold block print:text-black">
+                <span className="text-[10px] text-emerald-400 font-bold block">
                   📍 EMBARQUE (ORIGEM)
                 </span>
-                <span className="font-semibold text-xs leading-tight block text-slate-200 print:text-black">
+                <span className="font-semibold text-xs leading-tight block text-slate-200">
                   {ride.pickup}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] text-cyan-400 font-bold block print:text-black">
+                <span className="text-[10px] text-cyan-400 font-bold block">
                   🏁 DESTINO (DESEMBARQUE)
                 </span>
-                <span className="font-semibold text-xs leading-tight block text-slate-200 print:text-black">
+                <span className="font-semibold text-xs leading-tight block text-slate-200">
                   {ride.destination}
                 </span>
               </div>
@@ -197,23 +409,23 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
 
             {/* Flight / Notes if present */}
             {ride.notes && (
-              <div className="rounded-xl bg-slate-800/40 border border-slate-700/40 p-2.5 text-[11px] print:bg-gray-100 print:border-gray-300">
-                <span className="font-bold text-slate-400 block text-[10px] print:text-gray-700">
+              <div className="rounded-xl bg-slate-800/40 border border-slate-700/40 p-2.5 text-[11px]">
+                <span className="font-bold text-slate-400 block text-[10px]">
                   📝 Observações / Voo:
                 </span>
-                <span className="text-slate-200 font-medium print:text-black">{ride.notes}</span>
+                <span className="text-slate-200 font-medium">{ride.notes}</span>
               </div>
             )}
 
             {/* Driver & Vehicle Details */}
-            <div className="pt-3 border-t border-dashed border-slate-700/80 flex items-center justify-between text-[11px] print:border-gray-400">
+            <div className="pt-3 border-t border-dashed border-slate-700/80 flex items-center justify-between text-[11px]">
               <div>
-                <span className="text-[10px] text-slate-400 block print:text-gray-600">Motorista Responsável</span>
-                <span className="font-bold text-slate-200 print:text-black">{driverName}</span>
+                <span className="text-[10px] text-slate-400 block">Motorista Responsável</span>
+                <span className="font-bold text-slate-200">{driverName}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 block print:text-gray-600">Veículo / Placa</span>
-                <span className="font-bold text-slate-200 print:text-black">
+                <span className="text-[10px] text-slate-400 block">Veículo / Placa</span>
+                <span className="font-bold text-slate-200">
                   {ride.vehicle_name ? `${ride.vehicle_name}` : "Carro do Motorista"}
                 </span>
                 {ride.vehicle_plate && (
@@ -225,24 +437,24 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
             </div>
 
             {/* Total Price */}
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-950 to-blue-950/60 border border-slate-800 flex items-center justify-between print:bg-gray-200 print:border-black">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-950 to-blue-950/60 border border-slate-800 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-slate-400 block print:text-gray-700 uppercase font-semibold">
+                <span className="text-[10px] text-slate-400 block uppercase font-semibold">
                   Valor Total do Serviço
                 </span>
-                <span className="text-[10px] text-emerald-400 print:text-black font-medium">
+                <span className="text-[10px] text-emerald-400 font-medium">
                   Transporte Privativo
                 </span>
               </div>
-              <span className="text-xl font-black text-emerald-400 print:text-black">
+              <span className="text-xl font-black text-emerald-400">
                 {formatCurrency(ride.price)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Modal Action Buttons (no-print) */}
-        <div className="no-print mt-3 space-y-2">
+        {/* Modal Action Buttons */}
+        <div className="mt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -281,4 +493,3 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
     </div>
   );
 }
-
