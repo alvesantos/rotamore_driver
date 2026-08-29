@@ -1,6 +1,30 @@
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/useTheme";
 
+const formatPhone = (phone?: string) => {
+  if (!phone) return "-";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  return phone;
+};
+
+const formatDocument = (doc?: string) => {
+  if (!doc) return "-";
+  const digits = doc.replace(/\D/g, "");
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  }
+  if (digits.length === 14) {
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+  }
+  return doc;
+};
+
 export default function Profile() {
   const { user, logout } = useAuth();
   const { isDark } = useTheme();
@@ -40,16 +64,6 @@ export default function Profile() {
           }`}
         >
           {user?.email}
-        </span>
-        <span
-          className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-semibold border ${
-            isDark
-              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-              : "bg-emerald-50 text-emerald-700 border-emerald-200"
-          }`}
-        >
-          <span className="size-1.5 rounded-full bg-emerald-500" />
-          Motorista Credenciado
         </span>
       </div>
 
@@ -117,31 +131,19 @@ export default function Profile() {
                 isDark ? "text-slate-200" : "text-slate-800"
               }`}
             >
-              {user?.phone || "-"}
-            </dd>
-          </div>
-          <div
-            className={`flex justify-between items-center py-1 border-b ${
-              isDark ? "border-slate-800/50" : "border-slate-100"
-            }`}
-          >
-            <dt className={isDark ? "text-slate-400" : "text-slate-500"}>
-              Documento / CPF:
-            </dt>
-            <dd
-              className={`font-mono ${
-                isDark ? "text-slate-200" : "text-slate-800"
-              }`}
-            >
-              {user?.document || "-"}
+              {formatPhone(user?.phone)}
             </dd>
           </div>
           <div className="flex justify-between items-center py-1">
             <dt className={isDark ? "text-slate-400" : "text-slate-500"}>
-              Tipo de Acesso:
+              Documento:
             </dt>
-            <dd className="font-semibold text-cyan-500 uppercase tracking-wider text-[11px]">
-              Motorista ({user?.type})
+            <dd
+              className={`font-mono font-medium ${
+                isDark ? "text-slate-200" : "text-slate-800"
+              }`}
+            >
+              {formatDocument(user?.document)}
             </dd>
           </div>
         </dl>
@@ -170,4 +172,3 @@ export default function Profile() {
     </div>
   );
 }
-
