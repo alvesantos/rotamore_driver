@@ -5,6 +5,8 @@ import BottomNav, { type TabType } from "../components/layout/BottomNav";
 import Home from "./Home";
 import Profile from "./Profile";
 import Settings from "./Settings";
+import Quotes from "./Quotes";
+import Vehicles from "./Vehicles";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("home");
@@ -26,11 +28,13 @@ export default function Dashboard() {
       {/* Main Content View based on activeTab */}
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 space-y-5">
         {activeTab === "home" && <Home />}
+        {activeTab === "vehicles" && <Vehicles />}
+        {activeTab === "quotes" && <Quotes />}
         {activeTab === "profile" && <Profile />}
         {activeTab === "settings" && <Settings />}
       </main>
 
-      {/* Fixed Bottom Navigation */}
+      {/* Fixed Bottom Navigation (5 tabs) */}
       <BottomNav activeTab={activeTab} onSelectTab={setActiveTab} />
     </div>
   );
