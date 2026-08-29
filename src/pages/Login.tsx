@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { FormEvent, InputHTMLAttributes, ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import logo from "../assets/rotamore.png";
 
@@ -353,19 +353,8 @@ function Login() {
           <PrimaryButton isLoading={isSubmitting}>Entrar como Motorista</PrimaryButton>
         </form>
 
-        <div className="my-6 flex items-center gap-4 text-xs text-slate-400 before:h-px before:flex-1 before:bg-slate-200 after:h-px after:flex-1 after:bg-slate-200">
-          ou
-        </div>
-
-        <p className="text-center text-[13px] text-slate-500">
-          Quer ser um motorista parceiro?{" "}
-          <Link to="/cadastro" className="font-bold text-blue-600 hover:underline">
-            Cadastre-se agora
-          </Link>
-        </p>
-
         <p className="mx-auto mt-7 max-w-sm text-center text-[10px] text-slate-400">
-          Área restrita a motoristas credenciados Rota+.
+          Área restrita a motoristas credenciados Rota+. Contas criadas e ativadas pela administração.
         </p>
       </div>
     </AuthLayout>

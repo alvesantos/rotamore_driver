@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useAuth } from "../../context/useAuth";
 import { useTheme } from "../../context/useTheme";
-import type { Ride } from "../../types/ride";
+import type { Ride, ServiceCategory } from "../../types/ride";
 import type { VehicleItem } from "../../pages/Vehicles";
 
 interface NewRideModalProps {
@@ -33,6 +33,7 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
   const { user, token } = useAuth();
   const { isDark } = useTheme();
 
+  const [category, setCategory] = useState<ServiceCategory>("transfer");
   const [vehicles, setVehicles] = useState<VehicleItem[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -44,6 +45,7 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
   const [passengersCount, setPassengersCount] = useState<number>(1);
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
+  const [stops, setStops] = useState<string[]>(["Praia do Francês", "Praia do Gunga"]);
   const [notes, setNotes] = useState("");
   const [rideDate, setRideDate] = useState(() => {
     const today = new Date();
@@ -94,10 +96,40 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
     setPriceInput(formatCurrency(num));
   };
 
+  const handleAddStop = () => {
+    setStops((prev) => [...prev, ""]);
+  };
+
+  const handleRemoveStop = (index: number) => {
+    if (stops.length <= 1) return;
+    setStops((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleStopChange = (index: number, val: string) => {
+    setStops((prev) => {
+      const updated = [...prev];
+      updated[index] = val;
+      return updated;
+    });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const priceNum = parseCurrency(priceInput);
-    if (!customerName.trim() || !customerPhone.trim() || !pickup.trim() || !destination.trim() || priceNum <= 0) {
+
+    const cleanStops = stops.map((s) => s.trim()).filter(Boolean);
+    const finalDestination =
+      category === "transfer"
+        ? destination.trim()
+        : cleanStops.join(" ➔ ");
+
+    if (
+      !customerName.trim() ||
+      !customerPhone.trim() ||
+      !pickup.trim() ||
+      !finalDestination ||
+      priceNum <= 0
+    ) {
       setErrorMessage("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
@@ -106,11 +138,13 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
     setErrorMessage(null);
 
     const payload = {
+      category,
       customer_name: customerName.trim(),
       customer_phone: customerPhone.replace(/\D/g, ""),
       passengers_count: Number(passengersCount),
       pickup: pickup.trim(),
-      destination: destination.trim(),
+      destination: finalDestination,
+      stops: category === "passeio" ? cleanStops : [],
       notes: notes.trim(),
       ride_date: rideDate,
       ride_time: rideTime,
@@ -160,12 +194,15 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
         }`}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b pb-3 mb-4 border-slate-700/40">
+        <div className="flex items-center justify-between border-b pb-3 mb-3 border-slate-700/40">
           <div>
             <h2 className="text-base font-bold flex items-center gap-2">
-              <span>🚗</span> Nova Corrida / Voucher
+              <span>{category === "transfer" ? "🚗" : "🏖️"}</span>
+              Nova Corrida / Voucher
             </h2>
-            <p className="text-[11px] opacity-70">Cadastre os dados e emita o bilhete</p>
+            <p className="text-[11px] opacity-70">
+              {category === "transfer" ? "Transfer Ponto a Ponto" : "Passeio com Múltiplos Destinos"}
+            </p>
           </div>
           <button
             type="button"
@@ -176,13 +213,40 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
           </button>
         </div>
 
+        {/* Category Switcher: Transfer vs Passeio */}
+        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-800/80 border border-slate-700/60 mb-3.5">
+          <button
+            type="button"
+            onClick={() => setCategory("transfer")}
+            className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition ${
+              category === "transfer"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <span>🚗</span> Transfer (Direto)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCategory("passeio")}
+            className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition ${
+              category === "passeio"
+                ? "bg-cyan-500 text-slate-950 shadow-sm"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <span>🏖️</span> Passeio (Roteiro)
+          </button>
+        </div>
+
         {errorMessage && (
           <div className="mb-3 rounded-xl bg-red-500/10 border border-red-500/30 p-2.5 text-xs text-red-400 font-semibold">
             ⚠️ {errorMessage}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs max-h-[70vh] overflow-y-auto pr-1">
           {/* Customer Info */}
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -227,39 +291,101 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
             </select>
           </div>
 
-          {/* Route: Pickup & Destination */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block font-bold mb-1 text-[11px] opacity-80">Embarque (Origem) *</label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: Aeroporto"
-                value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                className={inputClass}
-              />
-            </div>
+          {/* Pickup & Destination (Transfer Mode) */}
+          {category === "transfer" ? (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block font-bold mb-1 text-[11px] opacity-80">Embarque (Origem) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Aeroporto"
+                  value={pickup}
+                  onChange={(e) => setPickup(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
-            <div>
-              <label className="block font-bold mb-1 text-[11px] opacity-80">Destino *</label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: Hotel Ponta Verde"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className={inputClass}
-              />
+              <div>
+                <label className="block font-bold mb-1 text-[11px] opacity-80">Destino (Desembarque) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Hotel Ponta Verde"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Passeio Mode: Origin + Dynamic Stops */
+            <div className="space-y-2.5 p-3 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+              <div>
+                <label className="block font-bold mb-1 text-[11px] text-cyan-400">
+                  📍 Ponto de Partida (Embarque) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Hotel / Pousada"
+                  value={pickup}
+                  onChange={(e) => setPickup(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block font-bold text-[11px] text-emerald-400">
+                    🏖️ Destinos / Paradas do Passeio
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddStop}
+                    className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1"
+                  >
+                    + Adicionar Parada
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  {stops.map((stop, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-mono text-slate-400 w-5">
+                        {idx + 1}ª
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        placeholder={`Parada ${idx + 1} (Ex: Praia do Gunga)`}
+                        value={stop}
+                        onChange={(e) => handleStopChange(idx, e.target.value)}
+                        className={inputClass}
+                      />
+                      {stops.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveStop(idx)}
+                          className="flex size-7 items-center justify-center rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs shrink-0 transition"
+                          title="Remover parada"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Notes / Flight Info */}
           <div>
             <label className="block font-bold mb-1 text-[11px] opacity-80">Observações / Voo</label>
             <input
               type="text"
-              placeholder="Número do voo LA1234, portão 2, bagagens..."
+              placeholder="Número do voo LA1234, portão 2, paradas para almoço..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className={inputClass}
@@ -329,7 +455,7 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
 
           {/* Price Input */}
           <div>
-            <label className="block font-bold mb-1 text-[11px] opacity-80">Valor da Corrida (R$) *</label>
+            <label className="block font-bold mb-1 text-[11px] opacity-80">Valor do Serviço (R$) *</label>
             <input
               type="text"
               required
@@ -368,4 +494,3 @@ export default function NewRideModal({ onClose, onSuccess }: NewRideModalProps) 
     </div>
   );
 }
-

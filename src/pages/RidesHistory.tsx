@@ -242,15 +242,20 @@ export default function RidesHistory({ onBack, onOpenNewRide }: RidesHistoryProp
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 text-xs max-w-[78%]">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm truncate">{ride.customer_name}</span>
-                      <span className="rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.2 text-[9px] font-bold">
-                        {ride.passengers_count} {ride.passengers_count === 1 ? "pax" : "pax"}
+                      <span className="rounded-full bg-blue-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.2 text-[9px] font-bold">
+                        {ride.category === "passeio" ? "🏖️ Passeio" : "🚗 Transfer"}
+                      </span>
+                      <span className="rounded-full bg-slate-700/50 text-slate-300 px-1.5 py-0.2 text-[9px] font-medium">
+                        {ride.passengers_count}pax
                       </span>
                     </div>
 
                     <div className="text-[11px] opacity-80 truncate">
-                      📍 {ride.pickup} → {ride.destination}
+                      {ride.category === "passeio" && ride.stops && ride.stops.length > 0
+                        ? `🏖️ ${ride.pickup} ➔ ${ride.stops.join(" ➔ ")}`
+                        : `📍 ${ride.pickup} → ${ride.destination}`}
                     </div>
 
                     <div className="flex items-center gap-2 text-[10px] text-slate-400">

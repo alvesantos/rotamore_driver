@@ -1,6 +1,6 @@
 import { useTheme } from "../../context/useTheme";
 
-export type TabType = "profile" | "vehicles" | "home" | "quotes" | "settings";
+export type TabType = "profile" | "vehicles" | "home" | "settings";
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -18,7 +18,7 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
           : "border-slate-200 bg-white/95 shadow-[0_-8px_25px_rgba(0,0,0,0.06)]"
       }`}
     >
-      <div className="mx-auto flex max-w-md items-center justify-around px-1 py-1.5">
+      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
         {/* TAB 1: PERFIL */}
         <button
           type="button"
@@ -42,7 +42,6 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
                 : ""
             }`}
           >
-            {/* User Icon */}
             <svg
               className="size-5"
               viewBox="0 0 24 24"
@@ -82,7 +81,6 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
                 : ""
             }`}
           >
-            {/* Car Icon */}
             <svg
               className="size-5"
               viewBox="0 0 24 24"
@@ -104,10 +102,10 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
         <button
           type="button"
           onClick={() => onSelectTab("home")}
-          className="flex flex-1 flex-col items-center justify-center relative -top-3.5 group"
+          className="flex flex-1 flex-col items-center justify-center relative -top-3 group"
         >
           <div
-            className={`flex size-13 items-center justify-center rounded-full shadow-lg transition transform group-active:scale-95 ${
+            className={`flex size-12 items-center justify-center rounded-full shadow-lg transition transform group-active:scale-95 ${
               activeTab === "home"
                 ? "bg-linear-to-tr from-blue-600 via-cyan-500 to-cyan-400 text-white shadow-cyan-500/40 ring-4 " +
                   (isDark ? "ring-slate-950" : "ring-slate-100")
@@ -116,9 +114,8 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
                 : "bg-white text-slate-600 border border-slate-200 shadow-md ring-4 ring-slate-100"
             }`}
           >
-            {/* Road / Highway Icon */}
             <svg
-              className="size-6.5"
+              className="size-6"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -147,49 +144,7 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
           </span>
         </button>
 
-        {/* TAB 4: ORÇAMENTO */}
-        <button
-          type="button"
-          onClick={() => onSelectTab("quotes")}
-          className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-center transition ${
-            activeTab === "quotes"
-              ? isDark
-                ? "text-cyan-400 font-bold"
-                : "text-blue-600 font-bold"
-              : isDark
-              ? "text-slate-400 hover:text-slate-200 font-medium"
-              : "text-slate-500 hover:text-slate-800 font-medium"
-          }`}
-        >
-          <div
-            className={`flex size-9 items-center justify-center rounded-xl transition ${
-              activeTab === "quotes"
-                ? isDark
-                  ? "bg-cyan-500/15"
-                  : "bg-blue-50"
-                : ""
-            }`}
-          >
-            {/* Quote / Money Calculator Icon */}
-            <svg
-              className="size-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={activeTab === "quotes" ? "2.2" : "1.8"}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <line x1="8" x2="16" y1="8" y2="8" />
-              <line x1="8" x2="16" y1="12" y2="12" />
-              <line x1="8" x2="12" y1="16" y2="16" />
-            </svg>
-          </div>
-          <span className="text-[10px] tracking-tight">Orçamento</span>
-        </button>
-
-        {/* TAB 5: AJUSTES */}
+        {/* TAB 4: AJUSTES */}
         <button
           type="button"
           onClick={() => onSelectTab("settings")}
@@ -212,7 +167,6 @@ export default function BottomNav({ activeTab, onSelectTab }: BottomNavProps) {
                 : ""
             }`}
           >
-            {/* Settings Cog Icon */}
             <svg
               className="size-5"
               viewBox="0 0 24 24"

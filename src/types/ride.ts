@@ -1,3 +1,5 @@
+export type ServiceCategory = "transfer" | "passeio";
+
 export interface Ride {
   id: string;
   user_id: string;
@@ -6,11 +8,13 @@ export interface Ride {
   vehicle_brand?: string;
   vehicle_plate?: string;
   vehicle_color?: string;
+  category?: ServiceCategory;
   customer_name: string;
   customer_phone: string;
   passengers_count: number;
   pickup: string;
   destination: string;
+  stops?: string[];
   notes?: string;
   ride_date: string; // YYYY-MM-DD
   ride_time: string; // HH:MM
@@ -19,4 +23,3 @@ export interface Ride {
   created_at?: string;
   updated_at?: string;
 }
-

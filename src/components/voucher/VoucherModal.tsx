@@ -37,6 +37,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
+  const isPasseio = ride.category === "passeio";
   const voucherCode = `#VOUCH-${ride.id.slice(0, 8).toUpperCase()}`;
   const driverName = user ? `${user.name} ${user.lastname}`.trim() : "Motorista Parceiro";
   const driverPhone = user?.phone || "";
@@ -58,6 +59,37 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
 
     const doc = printFrame.contentWindow?.document;
     if (!doc) return;
+
+    let routeHTML = `
+      <div class="route-item">
+        <div class="route-title">📍 EMBARQUE (ORIGEM)</div>
+        <div class="route-desc">${ride.pickup}</div>
+      </div>
+      <div class="route-item">
+        <div class="route-title">🏁 DESTINO (DESEMBARQUE)</div>
+        <div class="route-desc">${ride.destination}</div>
+      </div>
+    `;
+
+    if (isPasseio && ride.stops && ride.stops.length > 0) {
+      routeHTML = `
+        <div class="route-item">
+          <div class="route-title">📍 PONTO DE PARTIDA</div>
+          <div class="route-desc">${ride.pickup}</div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="route-title">🏖️ ROTEIRO / PARADAS DO PASSEIO</div>
+          <div style="margin-top: 4px;">
+            ${ride.stops
+              .map(
+                (s, idx) =>
+                  `<div style="font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 2px;">• ${idx + 1}ª Parada: ${s}</div>`
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
 
     doc.open();
     doc.write(`
@@ -89,14 +121,14 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
             .ticket {
               width: 100%;
               max-width: 520px;
-              border: 2px solid #0284c7;
+              border: 2px solid ${isPasseio ? "#0ea5e9" : "#2563eb"};
               border-radius: 16px;
               overflow: hidden;
               background: #ffffff;
               box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             }
             .header {
-              background: linear-gradient(135deg, #1e40af, #0284c7);
+              background: ${isPasseio ? "linear-gradient(135deg, #0284c7, #0f766e)" : "linear-gradient(135deg, #1e40af, #0284c7)"};
               color: #ffffff;
               padding: 20px;
               display: flex;
@@ -104,7 +136,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               align-items: center;
             }
             .logo-title {
-              font-size: 20px;
+              font-size: 18px;
               font-weight: 900;
               letter-spacing: -0.5px;
             }
@@ -113,13 +145,23 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               font-size: 11px;
               opacity: 0.9;
             }
-            .status {
+            .badge {
               background: #10b981;
               color: white;
               padding: 4px 10px;
               border-radius: 9999px;
               font-size: 10px;
               font-weight: bold;
+              text-transform: uppercase;
+            }
+            .category-tag {
+              display: inline-block;
+              background: rgba(255,255,255,0.2);
+              padding: 2px 8px;
+              border-radius: 6px;
+              font-size: 10px;
+              font-weight: bold;
+              margin-top: 4px;
               text-transform: uppercase;
             }
             .body {
@@ -151,7 +193,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               color: #475569;
             }
             .route-section {
-              border-left: 3px solid #0284c7;
+              border-left: 3px solid ${isPasseio ? "#0ea5e9" : "#2563eb"};
               padding-left: 14px;
               margin-bottom: 18px;
             }
@@ -164,7 +206,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
             .route-title {
               font-size: 10px;
               font-weight: 800;
-              color: #0284c7;
+              color: ${isPasseio ? "#0ea5e9" : "#2563eb"};
             }
             .route-desc {
               font-size: 13px;
@@ -209,9 +251,10 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
             <div class="header">
               <div>
                 <div class="logo-title">ROTA+ EXECUTIVO</div>
-                <div class="code">VOUCHER: ${voucherCode}</div>
+                <div class="category-tag">${isPasseio ? "🏖️ PASSEIO TURÍSTICO" : "🚗 TRANSFER EXECUTIVO"}</div>
+                <div class="code" style="margin-top: 4px;">VOUCHER: ${voucherCode}</div>
               </div>
-              <div class="status">${ride.status || "CONFIRMADO"}</div>
+              <div class="badge">${ride.status || "CONFIRMADO"}</div>
             </div>
 
             <div class="body">
@@ -229,19 +272,12 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               </div>
 
               <div class="route-section">
-                <div class="route-item">
-                  <div class="route-title">📍 EMBARQUE (ORIGEM)</div>
-                  <div class="route-desc">${ride.pickup}</div>
-                </div>
-                <div class="route-item">
-                  <div class="route-title">🏁 DESTINO (DESEMBARQUE)</div>
-                  <div class="route-desc">${ride.destination}</div>
-                </div>
+                ${routeHTML}
               </div>
 
               ${
                 ride.notes
-                  ? `<div class="notes-box"><strong>📝 Observações / Voo:</strong> ${ride.notes}</div>`
+                  ? `<div class="notes-box"><strong>📝 Observações:</strong> ${ride.notes}</div>`
                   : ""
               }
 
@@ -265,7 +301,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               <div class="price-card">
                 <div>
                   <div style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Valor Total do Serviço</div>
-                  <div style="font-size: 11px; color: #38bdf8;">Transporte Privativo</div>
+                  <div style="font-size: 11px; color: #38bdf8;">${isPasseio ? "Passeio Privativo" : "Transfer Privativo"}</div>
                 </div>
                 <div class="price-val">${formatCurrency(ride.price)}</div>
               </div>
@@ -293,19 +329,24 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
       ? `${ride.vehicle_brand || ""} ${ride.vehicle_name} (${ride.vehicle_plate || ""})`.trim()
       : "A definir";
 
+    let routeSection = `📍 *Embarque:* ${ride.pickup}\n🏁 *Destino:* ${ride.destination}\n`;
+    if (isPasseio && ride.stops && ride.stops.length > 0) {
+      routeSection = `📍 *Ponto de Partida:* ${ride.pickup}\n🏖️ *Roteiro de Paradas:*\n` +
+        ride.stops.map((s, idx) => `   ${idx + 1}. ${s}`).join("\n") + "\n";
+    }
+
     return (
-      `🎟️ *VOUCHER DE VIAGEM CONFIRMADO - ROTA+*\n` +
+      `🎟️ *VOUCHER DE ${isPasseio ? "PASSEIO TURÍSTICO" : "TRANSFER"} - ROTA+*\n` +
       `Código: ${voucherCode}\n\n` +
       `👤 *Passageiro:* ${ride.customer_name}\n` +
       `👥 *Pessoas:* ${ride.passengers_count} passageiro(s)\n` +
       `📅 *Data:* ${formattedDate} às ${ride.ride_time}\n\n` +
-      `📍 *Embarque:* ${ride.pickup}\n` +
-      `🏁 *Destino:* ${ride.destination}\n` +
-      (ride.notes ? `📝 *Observações/Voo:* ${ride.notes}\n` : "") +
+      routeSection +
+      (ride.notes ? `📝 *Observações:* ${ride.notes}\n` : "") +
       `\n🚗 *Veículo:* ${vehicleText}\n` +
       `🧑‍✈️ *Motorista:* ${driverName} (${formatPhone(driverPhone)})\n\n` +
       `💰 *Valor Total:* ${formatCurrency(ride.price)}\n\n` +
-      `_Obrigado por viajar com a Rota+ Transporte Executivo._`
+      `_Obrigado por viajar com a Rota+ Transporte Executivo & Turismo._`
     );
   };
 
@@ -343,7 +384,13 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
         {/* Ticket Card Container */}
         <div className="rounded-3xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden">
           {/* Ticket Header */}
-          <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 p-5 text-white border-b border-slate-700/60">
+          <div
+            className={`p-5 text-white border-b border-slate-700/60 ${
+              isPasseio
+                ? "bg-gradient-to-r from-teal-700 via-cyan-800 to-slate-900"
+                : "bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900"
+            }`}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <img
@@ -352,8 +399,13 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
                   className="h-7 w-auto object-contain bg-white/10 rounded-md p-0.5"
                 />
                 <div>
-                  <h3 className="font-extrabold text-sm tracking-wide">VOUCHER DE VIAGEM</h3>
-                  <span className="text-[10px] text-blue-200 uppercase font-mono tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-extrabold text-sm tracking-wide">VOUCHER</h3>
+                    <span className="rounded bg-white/20 px-1.5 py-0.2 text-[9px] font-bold uppercase">
+                      {isPasseio ? "🏖️ Passeio" : "🚗 Transfer"}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-blue-200 uppercase font-mono tracking-wider block mt-0.5">
                     {voucherCode}
                   </span>
                 </div>
@@ -386,32 +438,61 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
               </div>
             </div>
 
-            {/* Route Details */}
+            {/* Route Details (Transfer vs Passeio) */}
             <div className="space-y-2.5 border-l-2 border-cyan-500/40 pl-3 py-1">
-              <div>
-                <span className="text-[10px] text-emerald-400 font-bold block">
-                  📍 EMBARQUE (ORIGEM)
-                </span>
-                <span className="font-semibold text-xs leading-tight block text-slate-200">
-                  {ride.pickup}
-                </span>
-              </div>
+              {isPasseio && ride.stops && ride.stops.length > 0 ? (
+                <>
+                  <div>
+                    <span className="text-[10px] text-emerald-400 font-bold block">
+                      📍 PONTO DE PARTIDA (EMBARQUE)
+                    </span>
+                    <span className="font-semibold text-xs leading-tight block text-slate-200">
+                      {ride.pickup}
+                    </span>
+                  </div>
 
-              <div>
-                <span className="text-[10px] text-cyan-400 font-bold block">
-                  🏁 DESTINO (DESEMBARQUE)
-                </span>
-                <span className="font-semibold text-xs leading-tight block text-slate-200">
-                  {ride.destination}
-                </span>
-              </div>
+                  <div className="pt-1">
+                    <span className="text-[10px] text-cyan-400 font-bold block mb-1">
+                      🏖️ ROTEIRO DE PARADAS ({ride.stops.length})
+                    </span>
+                    <div className="space-y-1">
+                      {ride.stops.map((stop, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-200">
+                          <span className="text-cyan-400 font-bold">• {idx + 1}ª:</span>
+                          <span className="font-medium">{stop}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span className="text-[10px] text-emerald-400 font-bold block">
+                      📍 EMBARQUE (ORIGEM)
+                    </span>
+                    <span className="font-semibold text-xs leading-tight block text-slate-200">
+                      {ride.pickup}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-cyan-400 font-bold block">
+                      🏁 DESTINO (DESEMBARQUE)
+                    </span>
+                    <span className="font-semibold text-xs leading-tight block text-slate-200">
+                      {ride.destination}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Flight / Notes if present */}
             {ride.notes && (
               <div className="rounded-xl bg-slate-800/40 border border-slate-700/40 p-2.5 text-[11px]">
                 <span className="font-bold text-slate-400 block text-[10px]">
-                  📝 Observações / Voo:
+                  📝 Observações:
                 </span>
                 <span className="text-slate-200 font-medium">{ride.notes}</span>
               </div>
@@ -443,7 +524,7 @@ export default function VoucherModal({ ride, onClose }: VoucherModalProps) {
                   Valor Total do Serviço
                 </span>
                 <span className="text-[10px] text-emerald-400 font-medium">
-                  Transporte Privativo
+                  {isPasseio ? "Passeio Privativo" : "Transfer Privativo"}
                 </span>
               </div>
               <span className="text-xl font-black text-emerald-400">
