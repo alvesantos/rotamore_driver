@@ -10,6 +10,7 @@ export interface User {
   type: UserType;
   email: string;
   document: string;
+  state?: string;
   created_at?: string;
   updated_at?: string;
 }

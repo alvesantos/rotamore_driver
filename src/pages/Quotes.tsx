@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/useTheme";
+import { getStateName, getStateUF } from "../utils/brazilianStates";
 
 interface QuoteItem {
   id?: string;
@@ -45,6 +46,9 @@ export default function Quotes() {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<QuoteItem[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const userStateUF = getStateUF(user?.state || "AL");
+  const userStateName = getStateName(userStateUF);
 
   useEffect(() => {
     if (!token) return;
@@ -155,7 +159,7 @@ export default function Quotes() {
       `💰 *Valor da Viagem:* ${formatCurrency(quote.price)}\n\n` +
       `👤 *Motorista:* ${driverName}\n` +
       (driverPhone ? `📱 *Contato:* ${driverPhone}\n\n` : `\n`) +
-      `_Orçamento calculado via aplicativo Rota+ Maceió._`
+      `_Orçamento calculado via aplicativo Rota+ (${userStateName} - ${userStateUF})._`
     );
   };
 
@@ -182,14 +186,16 @@ export default function Quotes() {
 
   return (
     <div className="space-y-4 animate-fadeIn">
-      {/* Compact Header */}
+      {/* Dynamic State Header */}
       <div className="flex items-center justify-between px-1">
         <div>
           <h1 className="text-base font-bold tracking-tight">Criar Orçamento</h1>
-          <p className="text-[11px] opacity-70">Cotação rápida para Maceió e região</p>
+          <p className="text-[11px] opacity-70">
+            Cotação rápida para {userStateName} e região
+          </p>
         </div>
         <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-400 border border-cyan-500/20">
-          Maceió 🌴
+          📍 {userStateName} ({userStateUF})
         </span>
       </div>
 
@@ -210,28 +216,30 @@ export default function Quotes() {
             <input
               type="text"
               required
-              placeholder="Ex: Ponta Verde / Hotel"
+              placeholder="Ex: Ponto de Partida / Endereço"
               value={pickup}
               onChange={(e) => setPickup(e.target.value)}
               className={inputClass}
             />
-            {/* Quick Chips */}
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {MACEIO_POPULAR_PLACES.slice(0, 3).map((place) => (
-                <button
-                  key={place}
-                  type="button"
-                  onClick={() => setPickup(place)}
-                  className={`text-[9px] px-1.5 py-0.5 rounded border transition ${
-                    isDark
-                      ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400/50"
-                      : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {place}
-                </button>
-              ))}
-            </div>
+            {/* Quick Chips for current state (if AL or generic) */}
+            {userStateUF === "AL" && (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {MACEIO_POPULAR_PLACES.slice(0, 3).map((place) => (
+                  <button
+                    key={place}
+                    type="button"
+                    onClick={() => setPickup(place)}
+                    className={`text-[9px] px-1.5 py-0.5 rounded border transition ${
+                      isDark
+                        ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400/50"
+                        : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {place}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Destino */}
@@ -242,28 +250,30 @@ export default function Quotes() {
             <input
               type="text"
               required
-              placeholder="Ex: Aeroporto Zumbi dos Palmares"
+              placeholder="Ex: Endereço ou Local de Chegada"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               className={inputClass}
             />
-            {/* Quick Chips */}
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {MACEIO_POPULAR_PLACES.slice(3, 6).map((place) => (
-                <button
-                  key={place}
-                  type="button"
-                  onClick={() => setDestination(place)}
-                  className={`text-[9px] px-1.5 py-0.5 rounded border transition ${
-                    isDark
-                      ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400/50"
-                      : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {place}
-                </button>
-              ))}
-            </div>
+            {/* Quick Chips for current state (if AL) */}
+            {userStateUF === "AL" && (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {MACEIO_POPULAR_PLACES.slice(3, 6).map((place) => (
+                  <button
+                    key={place}
+                    type="button"
+                    onClick={() => setDestination(place)}
+                    className={`text-[9px] px-1.5 py-0.5 rounded border transition ${
+                      isDark
+                        ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-400/50"
+                        : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {place}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Valor */}
@@ -302,7 +312,7 @@ export default function Quotes() {
         >
           <div className="flex items-center justify-between border-b pb-2 mb-2.5 border-slate-700/40">
             <span className="text-[11px] font-bold text-cyan-400">
-              Orçamento Pronto
+              Orçamento Pronto • {userStateUF}
             </span>
             {currentQuote.id && (
               <button

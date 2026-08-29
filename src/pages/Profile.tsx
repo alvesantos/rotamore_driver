@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useAuth } from "../context/useAuth";
 import { useTheme } from "../context/useTheme";
+import { BRAZILIAN_STATES, getStateName, getStateUF } from "../utils/brazilianStates";
 
 const formatPhone = (phone?: string) => {
   if (!phone) return "-";
@@ -59,6 +60,7 @@ export default function Profile() {
     email: user?.email || "",
     phone: formatPhone(user?.phone),
     document: formatDocument(user?.document),
+    state: getStateUF(user?.state || "AL"),
   });
 
   const initials =
@@ -71,6 +73,7 @@ export default function Profile() {
       email: user?.email || "",
       phone: formatPhone(user?.phone),
       document: formatDocument(user?.document),
+      state: getStateUF(user?.state || "AL"),
     });
     setFeedback(null);
     setIsEditing(true);
@@ -103,6 +106,7 @@ export default function Profile() {
       email: formData.email,
       phone: cleanPhone,
       document: cleanDoc,
+      state: formData.state,
     });
 
     setIsSaving(false);
@@ -114,6 +118,9 @@ export default function Profile() {
       setFeedback({ type: "error", message: res.error || "Erro ao salvar alterações." });
     }
   };
+
+  const userStateUF = getStateUF(user?.state || "AL");
+  const userStateName = getStateName(userStateUF);
 
   const inputClass = `w-full rounded-xl border px-3.5 py-2.5 text-xs outline-none transition ${
     isDark
@@ -153,6 +160,9 @@ export default function Profile() {
           }`}
         >
           {user?.email}
+        </span>
+        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          📍 {userStateName} ({userStateUF})
         </span>
       </div>
 
@@ -273,7 +283,11 @@ export default function Profile() {
                 {formatPhone(user?.phone)}
               </dd>
             </div>
-            <div className="flex justify-between items-center py-1">
+            <div
+              className={`flex justify-between items-center py-1 border-b ${
+                isDark ? "border-slate-800/50" : "border-slate-100"
+              }`}
+            >
               <dt className={isDark ? "text-slate-400" : "text-slate-500"}>
                 Documento:
               </dt>
@@ -283,6 +297,18 @@ export default function Profile() {
                 }`}
               >
                 {formatDocument(user?.document)}
+              </dd>
+            </div>
+            <div className="flex justify-between items-center py-1">
+              <dt className={isDark ? "text-slate-400" : "text-slate-500"}>
+                Localização (Estado):
+              </dt>
+              <dd
+                className={`font-semibold ${
+                  isDark ? "text-cyan-400" : "text-blue-600"
+                }`}
+              >
+                {userStateName} ({userStateUF})
               </dd>
             </div>
           </dl>
@@ -354,6 +380,25 @@ export default function Profile() {
                 className={inputClass}
                 placeholder="000.000.000-00"
               />
+            </div>
+
+            <div>
+              <label className="block font-bold mb-1 opacity-80">
+                Localização (Estado de Atuação)
+              </label>
+              <select
+                value={formData.state}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, state: e.target.value }))
+                }
+                className={inputClass}
+              >
+                {BRAZILIAN_STATES.map((s) => (
+                  <option key={s.uf} value={s.uf}>
+                    {s.name} ({s.uf})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex gap-2.5 pt-2">
