@@ -51,7 +51,7 @@ export default function Quotes() {
     if (!token) return;
 
     let ignore = false;
-    fetch(`${API_BASE_URL}/api/quotes?limit=5`, {
+    fetch(`${API_BASE_URL}/api/quotes?limit=10`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : Promise.reject(res)))
@@ -77,30 +77,65 @@ export default function Quotes() {
     const priceNum = parseCurrency(priceInput);
     if (!pickup.trim() || !destination.trim() || priceNum <= 0) return;
 
-    const newQuote: QuoteItem = {
+    const tempQuote: QuoteItem = {
       pickup: pickup.trim(),
       destination: destination.trim(),
       price: priceNum,
       created_at: new Date().toISOString(),
     };
 
-    setCurrentQuote(newQuote);
-    setHistory((prev) => [newQuote, ...prev.slice(0, 4)]);
-
-    // Save to backend
+    // Save to backend and get persistent ID
     if (token) {
-      fetch(`${API_BASE_URL}/api/quotes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          pickup: newQuote.pickup,
-          destination: newQuote.destination,
-          price: newQuote.price,
-        }),
-      }).catch((err) => console.warn("Erro ao salvar orçamento:", err));
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/quotes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            pickup: tempQuote.pickup,
+            destination: tempQuote.destination,
+            price: tempQuote.price,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.quote) {
+            setCurrentQuote(data.quote);
+            setHistory((prev) => [data.quote, ...prev.filter((q) => q.id !== data.quote.id)]);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Erro ao salvar orçamento no servidor:", err);
+      }
+    }
+
+    setCurrentQuote(tempQuote);
+    setHistory((prev) => [tempQuote, ...prev]);
+  };
+
+  const handleDeleteQuote = async (id?: string) => {
+    if (!id) return;
+    if (!confirm("Deseja realmente excluir este orçamento?")) return;
+
+    if (currentQuote?.id === id) {
+      setCurrentQuote(null);
+    }
+
+    setHistory((prev) => prev.filter((item) => item.id !== id));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/api/quotes?id=${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (err) {
+        console.warn("Erro ao excluir orçamento na API:", err);
+      }
     }
   };
 
@@ -260,11 +295,12 @@ export default function Quotes() {
             />
           </div>
 
+          {/* Clean text without icon */}
           <button
             type="submit"
-            className="w-full rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 py-3 font-bold text-white shadow-md transition hover:opacity-90 active:scale-[0.99] flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 py-3 font-bold text-white shadow-md transition hover:opacity-90 active:scale-[0.99] flex items-center justify-center"
           >
-            <span>✨</span> Gerar Orçamento
+            Gerar Orçamento
           </button>
         </form>
       </div>
@@ -282,7 +318,15 @@ export default function Quotes() {
             <span className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
               <span>📋</span> Orçamento Pronto
             </span>
-            <span className="text-[10px] text-slate-400">Agora</span>
+            {currentQuote.id && (
+              <button
+                type="button"
+                onClick={() => handleDeleteQuote(currentQuote.id)}
+                className="text-[11px] text-red-400 hover:text-red-300 font-medium"
+              >
+                Excluir
+              </button>
+            )}
           </div>
 
           <div className="space-y-2 text-xs">
@@ -348,7 +392,7 @@ export default function Quotes() {
           }`}
         >
           <h3 className="text-xs font-bold mb-3 flex items-center justify-between opacity-80">
-            <span>🕒 Orçamentos Recentes</span>
+            <span>🕒 Orçamentos Salvos ({history.length})</span>
           </h3>
 
           <div className="space-y-2.5">
@@ -361,7 +405,7 @@ export default function Quotes() {
                     : "border-slate-100 bg-slate-50 hover:bg-slate-100/80"
                 }`}
               >
-                <div className="space-y-0.5 text-xs max-w-[65%]">
+                <div className="space-y-0.5 text-xs max-w-[55%]">
                   <div className="font-semibold truncate">
                     📍 {item.pickup} → {item.destination}
                   </div>
@@ -370,14 +414,26 @@ export default function Quotes() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleShareWhatsApp(item)}
-                  title="Enviar no WhatsApp"
-                  className="rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 p-2 text-xs hover:bg-emerald-600 hover:text-white transition"
-                >
-                  📲 WhatsApp
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleShareWhatsApp(item)}
+                    title="Enviar no WhatsApp"
+                    className="rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1.5 text-xs hover:bg-emerald-600 hover:text-white transition font-medium"
+                  >
+                    📲 WhatsApp
+                  </button>
+                  {item.id && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteQuote(item.id)}
+                      title="Excluir Orçamento"
+                      className="rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1.5 text-xs hover:bg-red-500 hover:text-white transition"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -386,4 +442,3 @@ export default function Quotes() {
     </div>
   );
 }
-
