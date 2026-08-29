@@ -108,6 +108,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateProfile = async (
+    updatedData: Partial<User>
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!token) {
+      return { success: false, error: "Usuário não autenticado." };
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "X-Client-Type": "driver",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.user) {
+        setUser(data.user);
+        localStorage.setItem("rotamore_driver_user", JSON.stringify(data.user));
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: data?.error || `Erro ao atualizar dados (${res.status}).`,
+      };
+    } catch (netErr) {
+      console.error("Falha ao atualizar perfil na API:", netErr);
+      return {
+        success: false,
+        error: "Não foi possível conectar ao servidor para atualizar os dados.",
+      };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -116,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated: !!user && user.type === "driver",
         isLoading,
         login,
+        updateProfile,
         logout,
       }}
     >

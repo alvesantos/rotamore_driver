@@ -20,8 +20,8 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (updatedData: Partial<User>) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
